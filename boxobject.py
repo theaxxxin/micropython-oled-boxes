@@ -1,10 +1,13 @@
+
+
 ##--Micropython--##
 ##--ESP32 with 1.3Inch OLED Via i2c--##
-from machine import Pin, I2C
+from machine import Pin, I2C, TouchPad
 
 import sh1106
 
 import time
+import random
 
 
 
@@ -47,14 +50,24 @@ class box:
             self.posx = int(startx + (endx - startx) * i/50)
             self.posy = int(starty + (endy - starty) * i/50)
             self.update()     
-                   
-#Sample Code (Can be excecuted in the shell as well)                  
-s = box(10,10,10,"Hello")            
-a = box(10,20,10,"World")
-a.move(60,60)
-a.move(60,10)
-    
-       
-       
+a = box(10,10,10,"BYAAAARGH")
+button = Pin(18,Pin.IN)
 
+button_press = False
+global interrupt_pin
+def handle_interrupt (pin):
+    global button_press
+    button_press = True
+    global interrupt_pin
+    interrupt_pin = pin
+button.irq(trigger=Pin.IRQ_RISING, handler=handle_interrupt)
+instance=[] 
 
+boxcount = 0
+while True: 
+    time.sleep(0.1)
+    if button_press:
+        boxcount +=1
+        print("buttonpress!")
+        instance.append(box(random.randint(1,128),random.randint(1,64),10,str(boxcount)))
+        button_press = False
